@@ -1,3 +1,7 @@
+"""
+Adding comments to the main to prove connection to the git remote.
+"""
+
 from fastapi import FastAPI
 from app.routes.admins import router as admin_router
 from app.routes.providers import router as provider_router
