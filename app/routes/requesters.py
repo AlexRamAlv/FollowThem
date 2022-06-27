@@ -5,11 +5,12 @@ from app.models.pydantic_models import (
     RequesterDB,
     RequesterPublicModel,
     RequesterUpdateModel,
+    AdministratorDB
 )
 from app.utils.dependencies import get_entity_or_404
 from app.utils.pagination import pagination
 from app.database.config import session
-from app.database.models import Requester
+from app.database.models import Requester, Administrator
 
 
 router = APIRouter()
@@ -26,7 +27,7 @@ async def get_requester(
     return result
 
 
-@router.get("/{id}")
+@router.get("/{id}", response_model=RequesterPublicModel)
 async def get_requester(id: int) -> RequesterPublicModel:
     requester = await get_entity_or_404(
         id=id, class_entity=Requester, pydantic_model=RequesterPublicModel
@@ -38,6 +39,12 @@ async def get_requester(id: int) -> RequesterPublicModel:
 @router.post("/", response_model=RequesterDB, status_code=status.HTTP_201_CREATED)
 async def create_requester(create_requester: RequesterCreateModel) -> RequesterDB:
     requester_instance = Requester(**create_requester.dict())
+
+    await get_entity_or_404(
+        id=requester_instance.created_by_id,
+        class_entity=Administrator,
+        pydantic_model=AdministratorDB,
+    )
 
     session.add(requester_instance)
     session.commit()
@@ -71,6 +78,11 @@ async def update_requester(
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT, response_class=Response)
 async def delete_requester(id: int) -> None:
+    await get_entity_or_404(
+        id=id,
+        class_entity=Requester,
+        pydantic_model=RequesterPublicModel,
+    )
     session.query(Requester).filter(Requester.id == id).delete()
     session.commit()
     return None

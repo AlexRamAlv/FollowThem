@@ -12,9 +12,10 @@ async def get_entity_or_404(
     entity = session.query(class_entity).filter_by(id=id).first()
 
     if entity is None:
+        instace = class_entity()
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"the {class_entity} id {id} does not exist!",
+            detail=f"the {instace} id {id} does not exist!",
         )
 
     return pydantic_model.from_orm(entity)

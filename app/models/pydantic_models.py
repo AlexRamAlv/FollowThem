@@ -14,6 +14,13 @@ class Received(str, Enum):
 def convert_to_lowercase(n: str):
     return n.lower().strip()
 
+# list of providers
+class ListProviders(BaseModel):
+    id: int
+
+    class Config:
+        orm_mode = True
+
 
 # Admin Pydantic Model ###########################################
 class AdministratorBaseModel(BaseModel):
@@ -74,10 +81,13 @@ class RequestUpdateModel(RequestBaseModel):
     description: Optional[str]
     comments: Optional[str]
     requested_at: Optional[datetime]
+    created_by_id: Optional[int]
     received: Optional[Received]
     purchase_order_number: Optional[str] = Field(...)
+    providers: Optional[List[ListProviders]]
     updated_by_id: int
     update_date: datetime = Field(default_factory=datetime.now)
+    # Funtion to clean data
     _request_number = validator("request_number", allow_reuse=True)(
         convert_to_lowercase
     )
@@ -151,6 +161,7 @@ class RequesterPublicModel(RequesterDB):
     requests: List[ListRequestsModel]
 
 
+
 class RequesterUpdateModel(BaseModel):
     name: Optional[str]
     last_name: Optional[str]
@@ -163,9 +174,10 @@ class RequesterUpdateModel(BaseModel):
         orm_mode = True
 
 
-# Another classes of provider
+# Another classes of request
 class RequestCreateModel(RequestBaseModel):
-
+    providers: Optional[List[ListProviders]]
+    
     _request_number = validator("request_number", allow_reuse=True)(
         convert_to_lowercase
     )

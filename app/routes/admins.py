@@ -73,6 +73,11 @@ async def update_admin(
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT, response_class=Response)
 async def delete_admin(id: int) -> None:
+    await get_entity_or_404(
+        id=id,
+        class_entity=Administrator,
+        pydantic_model=AdministratorPublicModel,
+    )
     session.query(Administrator).filter(Administrator.id == id).delete()
     session.commit()
     return None
